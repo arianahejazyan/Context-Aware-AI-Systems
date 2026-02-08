@@ -13,8 +13,7 @@ import numpy as np
 load_dotenv()
 
 # Initialize OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
+client = OpenAI(api_key=os.getenv("HUGGING_FACE_API_KEY"))
 
 def load_knowledge_base(knowledge_dir: str = "knowledge") -> dict:
     """
