@@ -74,7 +74,6 @@ def create_embeddings_cache(knowledge_base: dict) -> dict:
         print(f" Creating embedding for: {doc_id} ...")
         embedding = get_embedding(content)
         embeddings_cache[doc_id] = embedding
-        print(f" > Vector length {len(embedding)} dimensions")
 
     print(f"\n Created {(len(embeddings_cache))} embeddings (cache in memory)")
 
@@ -85,9 +84,22 @@ def semantic_search(query: str, knowledge_base: dict, embeddings_cache: dict, to
     print("\n" + "="*70)
     print("STEP 3: Semantic search with cosine similarity")
     print("="*70)
-    
-    return similarities[:top_k]
 
+    query_embedding = get_embedding(query)
+
+    similarities = []
+    print(f"Calculating cosine similarity for each document: ")
+
+    for doc_id, content in knowledge_base.items():
+        doc_embedding = embeddings_cache[doc_id]
+        similarity = cosine_similarity(query_embedding, doc_embedding)
+        similarities.append((doc_id, content, similarity))
+        print(f" -{doc_id}: {similarity: .4f}")
+
+    similarities.sort(key=lambda x: x[2], reverse=True)
+    print(f" \n Top {top_k} most relevant documents selected")
+
+    return similarities[:top_k]
 
 def rag_query(user_question, knowledge_base, embeddings_cache):
 
