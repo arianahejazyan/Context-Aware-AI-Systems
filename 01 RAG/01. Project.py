@@ -16,6 +16,11 @@ load_dotenv()
 # Initialize OpenAI client
 client = InferenceClient(token=os.getenv("HUGGING_FACE_API_KEY"))
 
+chat_client = OpenAI(
+    base_url="https://router.huggingface.co/v1",
+    api_key=os.getenv("HUGGING_FACE_API_KEY")
+)
+
 def load_knowledge_base(knowledge_dir: str = "knowledge") -> dict:
     """
     STEP 1: PREPARE DOCUMENTS - Load from external files
@@ -127,8 +132,8 @@ def rag_query(user_question, knowledge_base, embeddings_cache):
     Answer:"""
 
     # Step 4: Generate answer
-    response = client.chat.completions.create(
-        model="mistralai/Mistral-7B-Instruct-v0.3",
+    response = chat_client.chat.completions.create(
+        model="HuggingFaceTB/SmolLM3-3B:hf-inference",
         messages=[
             {"role": "system", "content": "You are helpful assistant"},
             {"role": "user", "content": prompt},
