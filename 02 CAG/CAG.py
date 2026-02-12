@@ -53,9 +53,26 @@ def cag_query(user_question: str, knowledge_context: str) -> str:
     STEP 2: Send question with ALL knowledge in the system prompt
     The system prompt gets cached automatically by OpenAI!
     """
+
+    system_prompt = f""" You are a helpful assistant for CloudTech Solutions.
+    Answer questions using the knowledge base below.
+    
+    KNOWLEDGE BASE: 
+    {knowledge_context}
+    
+    Be concise and helpful"""
+
+    response = chat_client.chat.completions.create(
+        model="HuggingFaceTB/SmolLM3-3B:hf-inference",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_question},
+        ],
+        temperature=0.7,
+        max_tokens=300
+    )
     
     return response.choices[0].message.content
-
 
 def main():
     """
