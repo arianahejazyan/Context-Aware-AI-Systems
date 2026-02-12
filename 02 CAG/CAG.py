@@ -36,7 +36,7 @@ def load_knowledge_base(knowledge_dir: str = "knowledge") -> str:
         print(f"Error: knowledge directory not found: {knowledge_path}")
         return ""
     
-    for file_path in sorted(knowledge_path).glob("*.md"):
+    for file_path in sorted(knowledge_path.glob("*.md")):
         doc_id = file_path.stem
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -81,7 +81,25 @@ def main():
     print("="*70)
     print("CloudTech CAG Assistant - Simple Version")
     print("="*70)
-    
+
+    knowledge_context = load_knowledge_base()
+
+    print("="*70)
+    print("Step2: Asking Questions (Knowledge Gets Chached)")
+    print("="*70)
+
+    questions = [
+        "What are your pricing plans?",
+        "Do you have data centers in Europe?",
+        "How can I get support?"
+    ]
+
+    for question in questions:
+        print(f"\n\n{question}")
+        print("-"*70)
+
+        answer = cag_query(question, knowledge_context)
+        print(f"Answer: {answer}")
 
 if __name__ == "__main__":
     main()
