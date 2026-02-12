@@ -12,8 +12,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = InferenceClient(token=os.getenv("HUGGING_FACE_API_KEY"))
 
+chat_client = OpenAI(
+    base_url="https://router.huggingface.co/v1",
+    api_key=os.getenv("HUGGING_FACE_API_KEY")
+)
 
 def load_knowledge_base(knowledge_dir: str = "knowledge") -> str:
     """
