@@ -139,11 +139,28 @@ def extract_entities_from_question(question: str, graph_data: dict) -> list:
     STEP 2: Find which entities from the graph are mentioned in the question
     
     """
+    question_lower = question.lower()
+    found_entities = []
 
-    # Also check common variations
+    for entity_id, entity_info in graph_data['entities'].items():
+        entity_name = entity_id.replace('_', ' ').lower()
+
+        if entity_name in question_lower:
+            found_entities.append(entity_id)
+
+    # Also check common variants
+    name_map = {
+        'nolan': 'Christopher_Nolan',
+        'inception movie': 'Inception',
+        'interstellar film': 'interstellar'
+    }
+
+    for pattern, entity_id in name_map.items():
+        if pattern in question_lower and entity_id not in found_entities:
+            if entity_id in graph_data['entities']:
+                found_entities.append(entity_id)
       
     return found_entities
-
 
 def get_facts_from_graph(entity_ids: list, graph_data: dict) -> str:
     """
