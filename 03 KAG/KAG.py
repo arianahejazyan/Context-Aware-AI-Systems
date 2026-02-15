@@ -9,6 +9,7 @@ from pathlib import Path
 from openai import OpenAI
 from dotenv import load_dotenv
 import numpy as np
+from huggingface_hub import InferenceClient
 
 # Load environment variables
 load_dotenv()
@@ -29,9 +30,52 @@ def generate_graph_from_documents(documents: dict) -> dict:
     print("\n" + "="*70)
     print("Generating Knowledge Graph from Documents...")
     print("="*70)
-        
-    return {"entities": {}, "relationships": []}
 
+    # list comprehension
+    all_text = "\n\n".join([f'Documents: {doc_id}\n{content}' for doc_id, content in documents.item()])
+    
+    prompt = f'''Extract knowledge graph from this text. Return only valid JSON.
+
+    {all_text[:4000]} 
+
+    Format:
+    {{
+    "entities": {{"Entity_Name": {{"type": "Person|Movie", "property": "value"}}}},
+    "relationships": [{{"subject": "Entity1", "predicate": "DIRECTED", "object": "Entity2"}}]
+    }}
+
+    Use underscores in names (Christopher_Nolan). Use UPPERCASE verbs (DIRECTED, ACTED_IN).
+    JSON:
+    '''
+
+    response = chat_client.chat.completions.create(
+        model="HuggingFaceTB/SmolLM3-3B:hf-inference",
+        messages=[
+            {"role": "system", "content": "Extract knowledge graph as JSON only"},
+            {"role": "user", "content": prompt},
+        ],
+        temperature=0.3,
+        max_tokens=2000
+    )
+
+    try:
+        result = response.choices[0].message.content
+
+        if "'''json" in result:
+            result = result.split("'''json")[1].split("'''json")[0]
+
+        elif "'''" in result:
+            result = result.split("'''")[1].split("'''")[0]
+
+        graph_data = json.load(result.strip())
+        print(f'Generated {len(graph_data.get('entities', {}))} entities')
+        print(f'Generated {len(graph_data.get('relationships', {}))} relationships')
+
+        return graph_data
+
+    except:
+        print('Could not generate automatically')
+        return {"entities": {}, "relationships": []}
 
 def load_knowledge_graph(graph_file: str) -> dict:
     """
