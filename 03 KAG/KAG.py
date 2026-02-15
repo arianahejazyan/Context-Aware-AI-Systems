@@ -95,6 +95,18 @@ def load_knowledge_graph(graph_file: str) -> dict:
     print("STEP 1A: Loading Knowledge Graph (Structured Facts)")
     print("="*70)
     
+    graph_path = Path(__file__).parent / "knowledge" / graph_file
+
+    if not graph_path.exist():
+        print(f'Error: graph file not found: {graph_path}')
+        return {"entities": {}, "relationships": []}
+
+    with open(graph_path, 'r', encoding='utf-8') as f:
+        graph_data = json.load(f)
+
+    entities = graph_data.get('entities',{})
+    relationships = graph_data.get('relationships',[])
+
     return {"entities": entities, "relationships": relationships}
 
 def load_documents(knowledge_dir: str = "knowledge") -> dict:
