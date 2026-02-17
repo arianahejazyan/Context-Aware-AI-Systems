@@ -188,11 +188,10 @@ def get_facts_from_graph(entity_ids: list, graph_data: dict) -> str:
 
     return "\n".join(facts) if facts else "No specific facts found."
 
-def get_embedding(text: str) -> list:
-    """Get embedding vector (same as RAG)"""
+def get_embedding(text: str, model: str = "sentence-transformers/all-MiniLM-L6-v2") -> list:
     text = text.replace("\n", " ")
-    response = chat_client.embeddings.create(input=[text], model="text-embedding-3-small")
-    return response.data[0].embedding
+    response = client.feature_extraction(text, model=model)
+    return response
 
 def cosine_similarity(vec1: list, vec2: list) -> float:
     """Calculate similarity (same as RAG)"""
