@@ -276,7 +276,7 @@ def kag_query(user_question: str, graph_data: dict, documents: dict) -> str:
     """
 
     # Generate answer
-    prompt = f"Answer the questions using both fused context and user question\n {user_question}"
+    prompt = f"Answer the questions using both fused context and user question\n {fused_context}"
 
     response = chat_client.chat.completions.create(
         model="HuggingFaceTB/SmolLM3-3B:hf-inference",
