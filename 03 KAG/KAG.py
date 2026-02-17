@@ -233,18 +233,31 @@ def kag_query(user_question: str, graph_data: dict, documents: dict) -> str:
     print("="*70)
     
     # Extract entities
+    entities = extract_entities_from_question(user_question, graph_data)
+
+    if entities:
+        print(f"Found entities: {','.join(entities)}")
+    else:
+        print("No specific entities found")
     
     print("\n" + "="*70)
     print("STEP 3: Getting Facts from Knowledge Graph")
     print("="*70)
     
     # Get structured facts
+    graph_facts = get_facts_from_graph(entities, graph_data)
+    print(f'Retrieved facts for {len(entities)} entities')
     
     print("\n" + "="*70)
     print("STEP 4: Searching Documents for Details")
     print("="*70)
     
     # Search documents
+    relevant_docs = search_documents(user_question, documents)
+    doc_context = ""
+    for doc_id, content, similarity in relevant_docs:
+        doc_context += f"\n[Document: {doc_id}]\n{content}\n"
+        print(f'Found: {doc_id} (similarity: {similarity:.3f})')
 
     print("\n" + "="*70)
     print("STEP 5: Fusing Knowledge + Generating Answer")
@@ -252,21 +265,30 @@ def kag_query(user_question: str, graph_data: dict, documents: dict) -> str:
     
     # Fuse both knowledge sources
     
-    # Generate answer
+    fused_context = f"""FACT FROM KNOWLEDGE GRAPH:
+    {graph_facts}
 
-    
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+    DETAILS FROM DOCUMENTS:
+    {doc_context}
+
+    Question:
+    {user_question}
+    """
+
+    # Generate answer
+    prompt = f"Answer the questions using both fused context and user question\n {user_question}"
+
+    response = chat_client.chat.completions.create(
+        model="HuggingFaceTB/SmolLM3-3B:hf-inference",
         messages=[
             {"role": "system", "content": "You are a movie expert assistant."},
-            {"role": "user", "content": prompt}
+            {"role": "user", "content": prompt},
         ],
         temperature=0.7,
         max_tokens=300
     )
-    
-    return response.choices[0].message.content
 
+    return response.choices[0].message.content
 
 def main():
     """
