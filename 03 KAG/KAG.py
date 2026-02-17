@@ -97,7 +97,7 @@ def load_knowledge_graph(graph_file: str) -> dict:
     
     graph_path = Path(__file__).parent / "knowledge" / graph_file
 
-    if not graph_path.exist():
+    if not graph_path.exists():
         print(f'Error: graph file not found: {graph_path}')
         return {"entities": {}, "relationships": []}
 
@@ -191,7 +191,7 @@ def get_facts_from_graph(entity_ids: list, graph_data: dict) -> str:
 def get_embedding(text: str) -> list:
     """Get embedding vector (same as RAG)"""
     text = text.replace("\n", " ")
-    response = client.embeddings.create(input=[text], model="text-embedding-3-small")
+    response = chat_client.embeddings.create(input=[text], model="text-embedding-3-small")
     return response.data[0].embedding
 
 def cosine_similarity(vec1: list, vec2: list) -> float:
