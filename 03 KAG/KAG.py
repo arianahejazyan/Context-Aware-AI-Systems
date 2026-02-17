@@ -299,8 +299,19 @@ def main():
     print("="*70)
     
     # Step 1: Load documents first
+
+    documents = load_documents()
     
+    if not documents:
+        print("Error no document loaded.")
+        return
+
     # Step 2: Load or generate graph
+
+    graph_data = load_knowledge_graph("movie_graph.json")
+
+    if not graph_data['entities']:
+        print('No graph file found.')
     
     print("\n" + "="*70)
     print("Knowledge Sources Ready!")
@@ -319,7 +330,6 @@ def main():
         print(f"\n{'='*70}")
         print(f"ANSWER: {answer}")
         print(f"{'='*70}\n")
-
 
 if __name__ == "__main__":
     main()
